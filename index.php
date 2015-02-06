@@ -1,4 +1,14 @@
 <?php
+
+/*
+ * Author:  Emanuele "ToX" Toscano
+ *   http://emanuele.itoscano.com
+ * Date:   02/06/2015
+ *  Usage:
+ *	  Using the full editor: /barcode/index.php
+ *    Directly calling the desired configuration, using the appropriate GET variables: /barcode/index.php?digits=10&howManyCodes=12&etc
+ */
+
 require_once("sanitizer.php");
 
 /*
