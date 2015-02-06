@@ -15,12 +15,14 @@
  *  Usage:
  *	  <img src="/barcode.php?text=testing" alt="testing" />
  */
+require_once("sanitizer.php");
+
 	
 // Get pararameters that are passed in through $_GET or set to the default value
-$text = (isset($_GET["text"])?$_GET["text"]:"0");
-$size = (isset($_GET["size"])?$_GET["size"]:"20");
-$orientation = (isset($_GET["orientation"])?$_GET["orientation"]:"horizontal");
-$code_type = (isset($_GET["codetype"])?$_GET["codetype"]:"code128");
+$text = ( filterInt("text") != "" ) ? filterInt("text") : "0";
+$size = ( filterInt("size") != "" ) ? filterInt("size") : "20";
+$orientation = ( filterString("orientation") != "" )  ? filterString("orientation") : "horizontal";
+$code_type = ( filterString("codetype") != "" )  ? filterString("codetype") : "code128";
 $code_string = "";
 
 // Translate the $text into barcode the correct $code_type
