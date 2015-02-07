@@ -140,6 +140,10 @@ echo <<<STYLE
 		    align-content:center;
 		    flex-direction:column;
 		}
+		img {
+			width: auto !important;
+			margin: 0 auto;
+		}
 
 		@media print {
 			html, body {
