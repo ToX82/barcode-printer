@@ -6,7 +6,7 @@
  * Date:   02/06/2015
  *  Usage:
  *	  Using the full editor: /barcode/index.php
- *    Directly calling the desired configuration, using the appropriate GET variables: /barcode/index.php?digits=10&howManyCodes=12&etc
+ *    Directly calling the desired configuration, using the appropriate GET variables: /barcode/index.php?digits=6&howManyCodes=12&etc
  */
 
 require_once("sanitizer.php");
@@ -24,13 +24,15 @@ echo "<form action='' $hideForm method='get'>";
 	echo "<h2>Settings</h2>";
 
 	$howManyCodes = (filterInt('howManyCodes') != "") ? filterInt('howManyCodes') : 12;
-	$digits = (filterInt('digits') != "") ? filterInt('digits') : 10;
+	$digits = (filterInt('digits') != "") ? filterInt('digits') : 6;
 	$start = (filterInt('start') != "") ? filterInt('start') : 1;
 	$hideText = (filterString('hideText') != "") ? "checked" : null;
+	$overText = (filterString('overText') != "") ? filterString('overText') : "";
 	echo "<br>Digits per code: <input type='text' name='digits' value='{$digits}'>";
 	echo "<br>How many codes: <input type='text' name='howManyCodes' value='{$howManyCodes}'>";
 	echo "<br>Starting from: <input type='text' name='start' value='{$start}'>";
 	echo "<br>Hide text code below image: <input type='checkbox' name='hideText' $hideText>";
+	echo "<br>Fixed text over image: <input type='text' name='overText' value='{$overText}'>";
 
 	echo "<hr>";
 
@@ -48,6 +50,15 @@ echo "<form action='' $hideForm method='get'>";
 	$itemHeight = (filterString('itemHeight') != "") ? filterString('itemHeight') : "35mm";
 	echo "<br>Label width: <input type='text' name='itemWidth' value='{$itemWidth}'>";
 	echo "<br>Label height: <input type='text' name='itemHeight' value='{$itemHeight}'>";
+
+	$pageMarginLeft = (filterString('pageMarginLeft') != "") ? filterString('pageMarginLeft') : "0mm";
+	$pageMarginTop = (filterString('pageMarginTop') != "") ? filterString('pageMarginTop') : "0mm";
+	$pageMarginRight = (filterString('pageMarginRight') != "") ? filterString('pageMarginRight') : "0mm";
+	$pageMarginBottom = (filterString('pageMarginBottom') != "") ? filterString('pageMarginBottom') : "0mm";
+	echo "<br>Page left margin: <input type='text' name='pageMarginLeft' value='{$pageMarginLeft}'>";
+	echo "<br>Page top margin: <input type='text' name='pageMarginTop' value='{$pageMarginTop}'>";
+	echo "<br>Page right margin: <input type='text' name='pageMarginRight' value='{$pageMarginRight}'>";
+	echo "<br>Page bottom margin: <input type='text' name='pageMarginBottom' value='{$pageMarginBottom}'>";
 
 	$itemMarginBottom = (filterString('itemMarginBottom') != "") ? filterString('itemMarginBottom') : "0mm";
 	$itemMarginRight = (filterString('itemMarginRight') != "") ? filterString('itemMarginRight') : "0mm";
@@ -77,8 +88,11 @@ echo "</form>";
 /*
 * THE SHEET
 */
-function write($code, $codetype, $barCodeHeight, $hideText) {
+function write($code, $overText, $codetype, $barCodeHeight, $hideText) {
 	echo "<div class='item'>";
+    	if ($overText != "") {
+    		echo "<div>{$overText}</div>";
+    	}
     	echo "<img src='barcode.php?codetype={$codetype}&size={$barCodeHeight}&text={$code}'>";
     	if ($hideText == null) {
     		echo "<div>{$code}</div>";
@@ -89,12 +103,12 @@ function write($code, $codetype, $barCodeHeight, $hideText) {
 echo "<div class='sheet'>";
 	if ($codeArray != "") { // Specified array of codes
 		foreach (json_decode($codeArray) as $code) {
-			write($code, $codetype, $barCodeHeight, $hideText);
+			write($code, $overText, $codetype, $barCodeHeight, $hideText);
 		}
 	} else { // Unspecified codes, let's go incremental
 		for ($i = $start; $i < $howManyCodes + $start; $i++) {
 			$code = str_pad($i, $digits, "0", STR_PAD_LEFT);
-			write($code, $codetype, $barCodeHeight, $hideText);
+			write($code, $overText, $codetype, $barCodeHeight, $hideText);
 		}
 	}
 echo "</div>";
@@ -117,17 +131,23 @@ echo <<<STYLE
 			margin: 0 5px;
 		}
 		.sheet {
-			box-sizing: content-box;
+			box-sizing: border-box;
 			background-color: #FFF;
 			height: $pageHeight;
 			width: $pageWidth;
 			overflow: hidden;
+
+			padding-left: $pageMarginLeft;
+			padding-top: $pageMarginTop;
+			padding-right: $pageMarginRight;
+			padding-bottom: $pageMarginBottom;
 		}
 		.item {
 			float: left;
 			text-align: center;
 			vertical-align: middle;
 			border: 0;
+			overflow: visible;
 
 			height: $itemHeight;
 			width: $itemWidth;
@@ -141,6 +161,7 @@ echo <<<STYLE
 		    flex-direction:column;
 		}
 		img {
+			max-width: $itemWidth;
 			width: auto !important;
 			margin: 0 auto;
 		}
