@@ -77,30 +77,27 @@ echo "</form>";
 /*
 * THE SHEET
 */
+function write($code, $codetype, $barCodeHeight, $hideText) {
+	echo "<div class='item'>";
+    	echo "<img src='barcode.php?codetype={$codetype}&size={$barCodeHeight}&text={$code}'>";
+    	if ($hideText == null) {
+    		echo "<div>{$code}</div>";
+    	}
+    echo "</div>";
+}
+
 echo "<div class='sheet'>";
 	if ($codeArray != "") { // Specified array of codes
 		foreach (json_decode($codeArray) as $code) {
-			echo "<div class='item'>";
-		    	echo "<img src='barcode.php?codetype={$codetype}&size={$barCodeHeight}&text={$code}'>";
-		    	if ($hideText == null) {
-		    		echo "<div>{$code}</div>";
-		    	}
-		    echo "</div>";
+			write($code, $codetype, $barCodeHeight, $hideText);
 		}
-	} else { // Unspecified codes, let's go ncremental
+	} else { // Unspecified codes, let's go incremental
 		for ($i = $start; $i < $howManyCodes + $start; $i++) {
 			$code = str_pad($i, $digits, "0", STR_PAD_LEFT);
-
-			echo "<div class='item'>";
-		    	echo "<img src='barcode.php?codetype={$codetype}&size={$barCodeHeight}&text={$code}'>";
-		    	if ($hideText == null) {
-		    		echo "<div>{$code}</div>";
-		    	}
-		    echo "</div>";
+			write($code, $codetype, $barCodeHeight, $hideText);
 		}
 	}
 echo "</div>";
-
 
 
 /*
@@ -112,6 +109,7 @@ echo <<<STYLE
 			background-color: #EEE;
 		}
 		body {
+			box-sizing: content-box;
 			margin: 5px auto;
 			width: $pageWidth;
 		}
@@ -119,27 +117,28 @@ echo <<<STYLE
 			margin: 0 5px;
 		}
 		.sheet {
+			box-sizing: content-box;
 			background-color: #FFF;
-			display: table;
 			height: $pageHeight;
 			width: $pageWidth;
 			overflow: hidden;
 		}
 		.item {
 			float: left;
-			border: 1px solid #ddd;
 			text-align: center;
 			vertical-align: middle;
+			border: 0;
 
 			height: $itemHeight;
 			width: $itemWidth;
 			margin-right: $itemMarginRight;
 			margin-bottom: $itemMarginBottom;
 
+			box-sizing: border-box;
 			display: flex;
 		    justify-content:center;
 		    align-content:center;
-		    flex-direction:column; /* column | row */
+		    flex-direction:column;
 		}
 
 		@media print {
